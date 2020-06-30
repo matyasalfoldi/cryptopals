@@ -102,7 +102,7 @@ int main(int argc, char** argv)
     std::cout << std::hex << "key: 0x" << key << std::endl;
     for (std::uint32_t i = 0; i < inputHex.size(); ++i)
     {
-        std::cout << std::hex << static_cast<char>(inputHex[i] ^ key);
+        std::cout << static_cast<char>(inputHex[i] ^ key);
     }
     return 0;
 }
