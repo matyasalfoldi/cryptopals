@@ -1,5 +1,5 @@
 #include "Base64Decode.h"
-
+#include <iostream>
 const std::map<std::string, std::uint32_t> ReverseIndexTable = {
     {"A", 0b000000}, // 0
     {"B", 0b000001}, // 1
@@ -79,12 +79,9 @@ std::vector<std::uint32_t> get_hex(std::string firstChar, std::string secondChar
     {
         //firstChar = 4 byte firstNum 2 byte secondNum
         //secondChar = 2 byte secondNum 4 byte thirdNum
-        std::uint32_t firstNum = (ReverseIndexTable.find(firstChar)->second & 0b111100) >> 2;
-        std::uint32_t secondNum = ((ReverseIndexTable.find(firstChar)->second & 0b000011)<<2) | ((ReverseIndexTable.find(secondChar)->second & 0b110000)>>4);
-        std::uint32_t thirdNum = ReverseIndexTable.find(secondChar)->second&0b001111;
-        hex.push_back(firstNum);
-        hex.push_back(secondNum);
-        hex.push_back(thirdNum);
+        hex.push_back((ReverseIndexTable.find(firstChar)->second & 0b111100) >> 2);
+        hex.push_back(((ReverseIndexTable.find(firstChar)->second & 0b000011) << 2) | ((ReverseIndexTable.find(secondChar)->second & 0b110000) >> 4));
+        hex.push_back(ReverseIndexTable.find(secondChar)->second & 0b001111);
     }
     return hex;
 }
@@ -95,7 +92,7 @@ std::vector<std::uint32_t> convert_base64_to_hex(const std::string base64)
     std::vector<std::uint32_t> results;    
     for (std::uint32_t i = 0; i+1 < base64.length(); i+=2)
     {
-        auto result = get_hex(base64.substr(i,1), base64.substr(i+1,1));
+        auto result = get_hex(base64.substr(i, 1), base64.substr(i + 1, 1));
         results.insert(results.end(), result.begin(), result.end());
     }
 

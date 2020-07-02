@@ -10,7 +10,7 @@ double calc_value(const std::vector<std::uint32_t>& xored)
         {111, 7.507}, // o
         {105, 6.966}, // i
         {110, 6.749}, // n
-        {32, 15}, // space (slightly more frequent than e according to wikipedia)
+        {32, 13}, // space (slightly more frequent than e according to wikipedia)
         {115, 6.327}, // s
         {104, 6.094}, // h
         {114, 5.987}, // r
@@ -52,14 +52,15 @@ double calc_value(const std::vector<std::uint32_t>& xored)
         {88, 0.150}, // X
         {75, 0.772}, // K
     };
-
+    static const std::vector<std::uint32_t> UsefulChars{9, 10, 13}; // tab lf cr
     double score = 0;
     for (std::uint32_t i = 0; i < xored.size(); ++i)
     {
         if (FreqTable.find(xored[i]) != FreqTable.end())
-        {
             score += FreqTable.find(xored[i])->second;
-        }
+        else if (xored[i] > 126 || (xored[i] < 32 && std::find(UsefulChars.begin(),UsefulChars.end(), xored[i]) == UsefulChars.end()))
+            score = -999999;
+        
     }
     return score;
 }
@@ -77,12 +78,11 @@ std::uint32_t best_value(const std::vector<std::uint32_t>& input)
         scores[key] = calc_value(xored);
     }
 
-    auto maxElement = std::max_element(
+    return std::max_element(
         scores.begin(),
         scores.end(),
         [](const std::pair<std::uint32_t, double> f, const std::pair<std::uint32_t, double> s)
         {
             return f.second < s.second;
-        });
-    return maxElement->first;
+        })->first;
 }

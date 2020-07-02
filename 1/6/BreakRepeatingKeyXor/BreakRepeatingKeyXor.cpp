@@ -11,8 +11,8 @@
 extern std::vector<std::uint32_t> convert_base64_to_hex(const std::string base64);
 extern std::uint32_t best_value(const std::vector<std::uint32_t>& input);
 
-template<class T>
-std::uint32_t hamming_dist(T f, T s)
+// Works correctly
+std::uint32_t hamming_dist(std::uint32_t f, std::uint32_t s)
 {
     std::uint32_t diff = 0;
     std::uint32_t xoredVal = f ^ s;
@@ -20,22 +20,6 @@ std::uint32_t hamming_dist(T f, T s)
     {
         diff += xoredVal & 1;
         xoredVal >>= 1;
-    }
-    return diff;
-}
-
-template<>
-std::uint32_t hamming_dist<std::string>(std::string f, std::string s)
-{
-    std::uint32_t diff = 0;
-    for (std::uint32_t i = 0; i < f.length(); ++i)
-    {
-        std::uint32_t xoredVal = f[i] ^ s[i];
-        while (xoredVal != 0)
-        {
-            diff += xoredVal & 1;
-            xoredVal >>= 1;
-        }
     }
     return diff;
 }
@@ -99,7 +83,7 @@ std::vector<std::vector<std::uint32_t>> create_blocks(const std::vector<std::uin
     int counter = 0;
     for (std::uint32_t i = 0; i+1 < hexValues.size(); i += blockSize)
     {
-        std::uint32_t end = (i + blockSize) < hexValues.size() ? i + blockSize : i + hexValues.size() - i;
+        std::uint32_t end = (i + blockSize) < hexValues.size() ? i + blockSize : hexValues.size();
         hexBlocks[counter].insert(hexBlocks[counter].end(), hexValues.cbegin() + i, hexValues.cbegin() + end);
         ++counter;
     }
@@ -130,6 +114,7 @@ void rep_key_xor(const std::vector<std::uint32_t>& hexValues, const std::vector<
 
 int main(int argc, char** argv)
 {
+    // Don't remove newlines, might be the cause
     std::vector<std::string> lines;
     read_base64_input(argv[1], lines);
     std::vector<std::uint32_t> hexValues;
