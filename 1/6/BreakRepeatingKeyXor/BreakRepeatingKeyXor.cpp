@@ -11,15 +11,17 @@
 extern std::vector<std::uint32_t> convert_base64_to_hex(const std::string base64);
 extern std::uint32_t best_value(const std::vector<std::uint32_t>& input);
 
-// Works correctly
-std::uint32_t hamming_dist(std::uint32_t f, std::uint32_t s)
+std::uint32_t hamming_dist(std::vector<std::uint32_t> f, std::vector<std::uint32_t> s)
 {
     std::uint32_t diff = 0;
-    std::uint32_t xoredVal = f ^ s;
-    while (xoredVal != 0)
+    for (std::uint32_t i = 0; i < f.size(); ++i)
     {
-        diff += xoredVal & 1;
-        xoredVal >>= 1;
+        std::uint32_t xoredVal = f[i] ^ s[i];
+        while (xoredVal != 0)
+        {
+            diff += xoredVal & 1;
+            xoredVal >>= 1;
+        }
     }
     return diff;
 }
@@ -31,7 +33,7 @@ std::vector<std::uint32_t> get_key_len(const std::vector<std::uint32_t>& hex)
     std::map<std::uint32_t, double> keyLenScores;
     for (std::uint32_t keyLen = minKeyLen; keyLen <= maxKeyLen; ++keyLen)
     {
-        double dist = 0;
+        double dist = 0.0;
         std::uint32_t c = 0;
         for (std::uint32_t i = 0; i+(2*keyLen) < hex.size(); i+=2*keyLen)
         {
@@ -39,14 +41,10 @@ std::vector<std::uint32_t> get_key_len(const std::vector<std::uint32_t>& hex)
                                              hex.cbegin() + i + keyLen);
             std::vector<std::uint32_t> second(hex.cbegin() + i + keyLen,
                                               hex.cbegin() + i + (2 * keyLen));
-            for (std::uint32_t j = 0; j < first.size(); ++j)
-            {
-                dist += hamming_dist(first[j], second[j]);
-            }
-            dist = dist / keyLen;
+            dist = hamming_dist(first,second) / static_cast<double>(keyLen);
             ++c;
         }
-        keyLenScores[keyLen] = dist/c;
+        keyLenScores[keyLen] = dist / (double)c;
     }
     std::vector<std::uint32_t> keyLens;
     double minValue = (std::min_element(keyLenScores.cbegin(), keyLenScores.cend(),
